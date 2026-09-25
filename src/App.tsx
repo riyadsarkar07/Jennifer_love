@@ -4,6 +4,7 @@ import OpeningScreen from "./components/OpeningScreen";
 import AnimatedFlower from "./components/AnimatedFlower";
 import PhotoReveal from "./components/PhotoReveal";
 import LoveLetter from "./components/LoveLetter";
+import LoveJourney from "./components/LoveJourney";
 import Gallery from "./components/Gallery";
 import ReasonsILoveYou from "./components/ReasonsILoveYou";
 import BirthdaySurprise from "./components/BirthdaySurprise";
@@ -68,6 +69,7 @@ export default function App() {
             caption="You make my world brighter"
           />
           <LoveLetter from={MY_NAME} to={GIRLFRIEND_NAME} paragraphs={LETTER_PARAGRAPHS} />
+          <LoveJourney />
           <Gallery images={GALLERY_IMAGES} />
           <ReasonsILoveYou />
           <BirthdaySurprise name={GIRLFRIEND_NAME} from={MY_NAME} images={GALLERY_IMAGES} />
