@@ -40,6 +40,9 @@ const MESSAGE_MS = 1500;
 
 const OCEAN = ["#0b0614", "#160a22", "#241033"] as const;
 const LAND = "#4a1d46";
+const PLANE_SCALE = 0.92;
+const PLANE_PATH_START = 0.012;
+const PLANE_PATH_END = 0.88;
 
 function drawHeart(ctx: CanvasRenderingContext2D, x: number, y: number, s: number, fill: string) {
   ctx.save();
@@ -55,6 +58,21 @@ function drawHeart(ctx: CanvasRenderingContext2D, x: number, y: number, s: numbe
   ctx.restore();
 }
 
+function shortestAngle(from: number, to: number): number {
+  let d = to - from;
+  while (d > Math.PI) d -= Math.PI * 2;
+  while (d < -Math.PI) d += Math.PI * 2;
+  return from + d;
+}
+
+function sampleGreatCircle(path: Vec3[], t: number): Vec3 {
+  const n = path.length - 1;
+  if (n <= 0) return path[0];
+  const u = clamp(t, 0, 1) * n;
+  const i = Math.min(n - 1, Math.floor(u));
+  return slerp(path[i], path[i + 1], u - i);
+}
+
 function drawAirplane(ctx: CanvasRenderingContext2D, x: number, y: number, angle: number, scale: number) {
   ctx.save();
   ctx.translate(x, y);
@@ -62,107 +80,112 @@ function drawAirplane(ctx: CanvasRenderingContext2D, x: number, y: number, angle
   ctx.scale(scale, scale);
   ctx.lineJoin = "round";
   ctx.lineCap = "round";
-  ctx.shadowColor = "rgba(232,185,120,0.55)";
-  ctx.shadowBlur = 14;
+  ctx.shadowColor = "rgba(8, 2, 12, 0.28)";
+  ctx.shadowBlur = 3.5;
+  ctx.shadowOffsetY = 0.5;
 
-  ctx.fillStyle = "#C9D4E8";
+  ctx.fillStyle = "#A8B4C6";
   ctx.beginPath();
-  ctx.moveTo(-10, 0);
-  ctx.lineTo(-7, 5);
-  ctx.lineTo(-13, 11);
-  ctx.lineTo(-16, 10);
-  ctx.lineTo(-12, 0);
-  ctx.lineTo(-16, -10);
-  ctx.lineTo(-13, -11);
-  ctx.lineTo(-7, -5);
+  ctx.moveTo(4.4, 0);
+  ctx.lineTo(-0.2, 11.2);
+  ctx.lineTo(-1.15, 12.05);
+  ctx.lineTo(-2.05, 12.15);
+  ctx.lineTo(-2.35, 11.35);
+  ctx.lineTo(-1.55, 10.7);
+  ctx.lineTo(-2.7, 1.05);
+  ctx.lineTo(-2.7, -1.05);
+  ctx.lineTo(-1.55, -10.7);
+  ctx.lineTo(-2.35, -11.35);
+  ctx.lineTo(-2.05, -12.15);
+  ctx.lineTo(-1.15, -12.05);
+  ctx.lineTo(-0.2, -11.2);
   ctx.closePath();
   ctx.fill();
 
-  ctx.fillStyle = "#F4F0EA";
+  ctx.fillStyle = "#8E9AAD";
   ctx.beginPath();
-  ctx.moveTo(28, 0);
-  ctx.bezierCurveTo(24, -3.6, 10, -5.2, -6, -4.6);
-  ctx.lineTo(-22, -3.2);
-  ctx.bezierCurveTo(-26, -2.6, -27, -1.2, -27, 0);
-  ctx.bezierCurveTo(-27, 1.2, -26, 2.6, -22, 3.2);
-  ctx.lineTo(-6, 4.6);
-  ctx.bezierCurveTo(10, 5.2, 24, 3.6, 28, 0);
+  ctx.moveTo(-1.15, 12.05);
+  ctx.lineTo(-0.55, 13.15);
+  ctx.lineTo(-1.55, 13.25);
+  ctx.lineTo(-2.05, 12.15);
+  ctx.closePath();
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(-1.15, -12.05);
+  ctx.lineTo(-0.55, -13.15);
+  ctx.lineTo(-1.55, -13.25);
+  ctx.lineTo(-2.05, -12.15);
   ctx.closePath();
   ctx.fill();
 
+  ctx.fillStyle = "#6D7786";
+  ctx.beginPath();
+  ctx.ellipse(0.15, 5.55, 1.85, 0.82, 0.12, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(0.15, -5.55, 1.85, 0.82, -0.12, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#3F4854";
+  ctx.beginPath();
+  ctx.ellipse(-0.95, 5.55, 0.42, 0.58, 0.12, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(-0.95, -5.55, 0.42, 0.58, -0.12, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#B7C0CE";
+  ctx.beginPath();
+  ctx.moveTo(-11.2, 0);
+  ctx.lineTo(-13.15, 4.55);
+  ctx.lineTo(-14.55, 4.35);
+  ctx.lineTo(-13.85, 0);
+  ctx.lineTo(-14.55, -4.35);
+  ctx.lineTo(-13.15, -4.55);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#8A3A4A";
+  ctx.beginPath();
+  ctx.moveTo(-12.4, 0);
+  ctx.lineTo(-16.05, -0.55);
+  ctx.lineTo(-16.2, 0.55);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#F3F5F7";
+  ctx.beginPath();
+  ctx.moveTo(14.2, 0);
+  ctx.bezierCurveTo(13.05, -1.05, 10.4, -1.48, 6.8, -1.55);
+  ctx.lineTo(-9.4, -1.42);
+  ctx.bezierCurveTo(-12.2, -1.22, -14.15, -0.62, -15.55, 0);
+  ctx.bezierCurveTo(-14.15, 0.62, -12.2, 1.22, -9.4, 1.42);
+  ctx.lineTo(6.8, 1.55);
+  ctx.bezierCurveTo(10.4, 1.48, 13.05, 1.05, 14.2, 0);
+  ctx.closePath();
+  ctx.fill();
   ctx.shadowBlur = 0;
-  ctx.strokeStyle = "rgba(42, 22, 48, 0.28)";
-  ctx.lineWidth = 0.7;
+  ctx.shadowOffsetY = 0;
+  ctx.strokeStyle = "rgba(42, 22, 48, 0.2)";
+  ctx.lineWidth = 0.32;
   ctx.stroke();
 
-  ctx.fillStyle = "#D8C4A8";
+  ctx.strokeStyle = "rgba(232, 185, 120, 0.7)";
+  ctx.lineWidth = 0.22;
   ctx.beginPath();
-  ctx.moveTo(26.5, 0);
-  ctx.bezierCurveTo(23, -2.2, 14, -3.2, 6, -3);
-  ctx.lineTo(6, 3);
-  ctx.bezierCurveTo(14, 3.2, 23, 2.2, 26.5, 0);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle = "#8FA3C4";
-  ctx.beginPath();
-  ctx.moveTo(4, 0);
-  ctx.lineTo(-1, 16);
-  ctx.lineTo(-8, 15.2);
-  ctx.lineTo(-4, 0);
-  ctx.lineTo(-8, -15.2);
-  ctx.lineTo(-1, -16);
-  ctx.closePath();
-  ctx.fill();
-  ctx.strokeStyle = "rgba(42, 22, 48, 0.22)";
-  ctx.lineWidth = 0.6;
+  ctx.moveTo(-8.6, 0.92);
+  ctx.lineTo(9.4, 0.92);
   ctx.stroke();
 
-  ctx.fillStyle = "#E8B978";
+  ctx.fillStyle = "#4E657A";
   ctx.beginPath();
-  ctx.moveTo(-2, 7);
-  ctx.lineTo(-5, 12.5);
-  ctx.lineTo(-8, 12);
-  ctx.lineTo(-4.5, 7);
-  ctx.closePath();
+  ctx.ellipse(11.85, 0, 1.05, 0.78, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(-2, -7);
-  ctx.lineTo(-5, -12.5);
-  ctx.lineTo(-8, -12);
-  ctx.lineTo(-4.5, -7);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle = "#5A6F8C";
-  ctx.beginPath();
-  ctx.moveTo(-18, 0);
-  ctx.lineTo(-23, 7.5);
-  ctx.lineTo(-26, 6.6);
-  ctx.lineTo(-22, 0);
-  ctx.lineTo(-26, -6.6);
-  ctx.lineTo(-23, -7.5);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle = "#3E1A40";
-  for (let i = 0; i < 5; i++) {
+  ctx.fillStyle = "#2F3C4A";
+  for (let i = 0; i < 9; i++) {
     ctx.beginPath();
-    ctx.ellipse(8 - i * 3.2, 0, 1.15, 1.45, 0, 0, Math.PI * 2);
+    ctx.arc(8.2 - i * 1.42, 0, 0.24, 0, Math.PI * 2);
     ctx.fill();
   }
-  ctx.fillStyle = "#7EB7E0";
-  ctx.beginPath();
-  ctx.ellipse(20, 0, 2.1, 1.7, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = "#C4415C";
-  ctx.beginPath();
-  ctx.moveTo(27.2, 0);
-  ctx.lineTo(22, -1.4);
-  ctx.lineTo(22, 1.4);
-  ctx.closePath();
-  ctx.fill();
 
   ctx.restore();
 }
@@ -242,6 +265,8 @@ export default function TravelGlobe({
     let idleLon = 105;
     let cam: Camera = { lat: 18, lon: 105, zoom: 1.02 };
     let lastPhase: JourneyPhase = "idle";
+    let planeHeading = 0;
+    let hasPlaneHeading = false;
 
     const stars = Array.from({ length: 70 }, (_, i) => ({
       x: (Math.sin(i * 12.9898) * 0.5 + 0.5) * 1000,
@@ -301,6 +326,7 @@ export default function TravelGlobe({
         replaySeen = replayRef.current;
         elapsed = 0;
         lastPhase = "idle";
+        hasPlaneHeading = false;
       }
 
       const cssW = wrap.clientWidth;
@@ -341,6 +367,7 @@ export default function TravelGlobe({
         idleLon += dt * 0.0045;
         cam = { lat: 16, lon: idleLon, zoom: 1.02 };
         elapsed = 0;
+        hasPlaneHeading = false;
         setPhase("idle");
       } else {
         elapsed += dt;
@@ -386,7 +413,7 @@ export default function TravelGlobe({
           originAlpha = 1 - k * 0.35;
           destAlpha = k;
           trailT = 1;
-          showPlane = k < 0.85;
+          showPlane = false;
           flightT = 1;
           setPhase("arrival");
         } else {
@@ -573,17 +600,23 @@ export default function TravelGlobe({
       marker(b, destAlpha, "dest", destPlace.label);
 
       if (showPlane) {
-        const t = clamp(flightT, 0.002, 0.998);
-        const pos = slerp(a, b, t);
-        const next = slerp(a, b, Math.min(1, t + 0.018));
+        const t = lerp(PLANE_PATH_START, PLANE_PATH_END, clamp(flightT, 0, 1));
+        const pos = sampleGreatCircle(path, t);
+        const next = sampleGreatCircle(path, Math.min(1, t + 0.01));
         const rv = rotateToCamera(pos, cam);
         const nv = rotateToCamera(next, cam);
         if (isFront(rv)) {
           const p = project(rv, cx, cy, radius);
           const q = project(nv, cx, cy, radius);
-          const ang = Math.atan2(q.y - p.y, q.x - p.x);
-          const planeScale = Math.max(1.85, Math.min(cssW, cssH) / 210);
-          drawAirplane(ctx, p.x, p.y, ang, planeScale);
+          const dx = q.x - p.x;
+          const dy = q.y - p.y;
+          if (dx * dx + dy * dy > 0.04) {
+            const ang = Math.atan2(dy, dx);
+            const target = hasPlaneHeading ? shortestAngle(planeHeading, ang) : ang;
+            planeHeading = hasPlaneHeading ? planeHeading + (target - planeHeading) * 0.35 : target;
+            hasPlaneHeading = true;
+          }
+          drawAirplane(ctx, p.x, p.y, planeHeading, PLANE_SCALE);
         }
       }
 
