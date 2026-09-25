@@ -196,8 +196,9 @@ export default function BirthdaySurprise({ name, from, images }: BirthdaySurpris
 
   return (
     <section
+      id="birthday"
       ref={ref}
-      className="relative flex flex-col items-center overflow-hidden px-4 py-16 sm:py-20"
+      className="relative flex scroll-mt-16 flex-col items-center overflow-hidden px-4 py-16 sm:py-20"
     >
       {isBirthday && !reduced &&
         CONFETTI.map((c, i) => (

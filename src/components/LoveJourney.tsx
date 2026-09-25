@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Heart } from "lucide-react";
 import { useLoveJourney } from "../hooks/useLoveJourney";
+import { useAudio } from "../audio/AudioProvider";
 
 const UNITS = [
   { key: "days", label: "Days" },
@@ -22,6 +24,8 @@ function pad(n: number): string {
 
 export default function LoveJourney() {
   const parts = useLoveJourney();
+  const { muted, sfxOn } = useAudio();
+  const [tickOn, setTickOn] = useState(false);
   const values = {
     days: parts.days,
     hours: parts.hours,
@@ -29,8 +33,15 @@ export default function LoveJourney() {
     seconds: parts.seconds,
   };
 
+  useEffect(() => {
+    if (!tickOn || muted || !sfxOn) return;
+    const audio = new Audio("/audio/click.wav");
+    audio.volume = 0.08;
+    void audio.play().catch(() => undefined);
+  }, [parts.seconds, tickOn, muted, sfxOn]);
+
   return (
-    <section className="relative flex flex-col items-center overflow-hidden px-4 py-16 sm:py-20">
+    <section id="journey" className="relative flex scroll-mt-16 flex-col items-center overflow-hidden px-4 py-16 sm:py-20">
       <motion.div
         className="pointer-events-none absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-rose/30 blur-3xl sm:h-72 sm:w-72"
         animate={{ opacity: [0.35, 0.7, 0.35], scale: [1, 1.08, 1] }}
@@ -108,6 +119,15 @@ export default function LoveJourney() {
       >
         And our story is just beginning, Jennifer.
       </motion.p>
+
+      <button
+        type="button"
+        onClick={() => setTickOn((v) => !v)}
+        aria-pressed={tickOn}
+        className="relative z-10 mt-5 min-h-[44px] rounded-full border border-gold/35 px-4 py-2 font-body text-xs text-gold"
+      >
+        {tickOn ? "Soft tick on" : "Soft tick off"}
+      </button>
     </section>
   );
 }

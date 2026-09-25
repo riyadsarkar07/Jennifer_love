@@ -1,6 +1,7 @@
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useReducedMotion } from "../hooks/useReducedMotion";
+import { useAudio } from "../audio/AudioProvider";
 
 const OUTER_PETALS = [
   { rotate: 0, delay: 0 },
@@ -68,15 +69,26 @@ function RosePetal({
 
 export default function AnimatedFlower() {
   const ref = useRef<HTMLDivElement>(null);
+  const bloomed = useRef(false);
   const inView = useInView(ref, { once: true, amount: 0.15 });
   const reduced = useReducedMotion();
+  const { playSfx } = useAudio();
   const play = inView || reduced;
   const bloomStart = reduced ? 0 : 2.15;
 
+  useEffect(() => {
+    if (!inView || bloomed.current) return;
+    bloomed.current = true;
+    const delay = reduced ? 80 : 2200;
+    const id = window.setTimeout(() => playSfx("bloom"), delay);
+    return () => window.clearTimeout(id);
+  }, [inView, playSfx, reduced]);
+
   return (
     <section
+      id="garden"
       ref={ref}
-      className="relative flex flex-col items-center overflow-hidden px-4 py-14 sm:py-20"
+      className="relative flex scroll-mt-16 flex-col items-center overflow-hidden px-4 py-14 sm:py-20"
     >
       <motion.h2
         initial={{ opacity: 0, y: 16 }}

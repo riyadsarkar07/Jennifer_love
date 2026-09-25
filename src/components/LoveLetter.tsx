@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { Heart } from "lucide-react";
+import { Heart, RotateCcw } from "lucide-react";
+import { useAudio } from "../audio/AudioProvider";
 
 interface LoveLetterProps {
   from: string;
@@ -12,10 +13,21 @@ export default function LoveLetter({ from, to, paragraphs }: LoveLetterProps) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.28 });
   const [open, setOpen] = useState(false);
+  const { playSfx } = useAudio();
   const firstName = to.split(" ")[0];
 
+  const openLetter = () => {
+    playSfx("paper");
+    setOpen(true);
+  };
+
+  const closeLetter = () => {
+    playSfx("paper");
+    setOpen(false);
+  };
+
   return (
-    <section ref={ref} className="flex flex-col items-center px-4 py-16 sm:py-20">
+    <section id="letter" ref={ref} className="flex scroll-mt-16 flex-col items-center px-4 py-16 sm:py-20">
       <motion.h2
         initial={{ opacity: 0, y: 12 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -30,7 +42,7 @@ export default function LoveLetter({ from, to, paragraphs }: LoveLetterProps) {
           <motion.button
             key="envelope"
             type="button"
-            onClick={() => setOpen(true)}
+            onClick={openLetter}
             initial={{ opacity: 0, scale: 0.82 }}
             animate={inView ? { opacity: 1, scale: 1 } : {}}
             exit={{ opacity: 0, scale: 0.88, y: -18, rotateX: 40 }}
@@ -117,6 +129,15 @@ export default function LoveLetter({ from, to, paragraphs }: LoveLetterProps) {
                 <Heart size={14} className="fill-rose-light text-rose-light" />
               </motion.span>
             ))}
+
+            <button
+              type="button"
+              onClick={closeLetter}
+              className="relative z-10 mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full border border-plum-deep/20 px-4 py-2 font-body text-sm text-plum-deep"
+            >
+              <RotateCcw size={14} />
+              Close and open again
+            </button>
           </motion.article>
         )}
       </AnimatePresence>

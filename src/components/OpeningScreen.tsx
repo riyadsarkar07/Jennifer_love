@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Heart } from "lucide-react";
 import StarField from "./StarField";
+import { useAudio } from "../audio/AudioProvider";
 
 interface OpeningScreenProps {
   onOpen: () => void;
@@ -27,6 +28,11 @@ const HEARTS = [
 
 export default function OpeningScreen({ onOpen, girlfriendName }: OpeningScreenProps) {
   const firstName = girlfriendName.split(" ")[0];
+  const { playSfx } = useAudio();
+  const open = () => {
+    playSfx("sparkle");
+    onOpen();
+  };
 
   return (
     <motion.div
@@ -91,7 +97,7 @@ export default function OpeningScreen({ onOpen, girlfriendName }: OpeningScreenP
       </motion.p>
 
       <motion.button
-        onClick={onOpen}
+        onClick={open}
         initial={{ opacity: 0, scale: 0.7, rotate: -8 }}
         animate={{ opacity: 1, scale: 1, rotate: 0 }}
         transition={{ delay: 1, duration: 0.75, ease: "backOut" }}
@@ -125,7 +131,7 @@ export default function OpeningScreen({ onOpen, girlfriendName }: OpeningScreenP
       </motion.button>
 
       <motion.button
-        onClick={onOpen}
+        onClick={open}
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.45, duration: 0.7 }}

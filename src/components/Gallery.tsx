@@ -1,25 +1,42 @@
 import { useCallback, useEffect, useRef, useState, type TouchEvent } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Heart, X } from "lucide-react";
+import { MEMORIES } from "../data/memories";
+import { useAudio } from "../audio/AudioProvider";
 
-interface GalleryProps {
-  images?: string[];
-}
-
-export default function Gallery({ images = [] }: GalleryProps) {
+export default function Gallery() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.12 });
   const [active, setActive] = useState<number | null>(null);
   const touchX = useRef(0);
-  const photos = images.filter(Boolean);
+  const { playSfx } = useAudio();
+  const photos = MEMORIES;
 
-  const close = useCallback(() => setActive(null), []);
+  const close = useCallback(() => {
+    playSfx("whoosh");
+    setActive(null);
+  }, [playSfx]);
+
   const prev = useCallback(() => {
-    setActive((i) => (i === null || photos.length === 0 ? i : (i + photos.length - 1) % photos.length));
-  }, [photos.length]);
+    setActive((i) => {
+      if (i === null || photos.length === 0) return i;
+      playSfx("whoosh");
+      return (i + photos.length - 1) % photos.length;
+    });
+  }, [photos.length, playSfx]);
+
   const next = useCallback(() => {
-    setActive((i) => (i === null || photos.length === 0 ? i : (i + 1) % photos.length));
-  }, [photos.length]);
+    setActive((i) => {
+      if (i === null || photos.length === 0) return i;
+      playSfx("whoosh");
+      return (i + 1) % photos.length;
+    });
+  }, [photos.length, playSfx]);
+
+  const open = (i: number) => {
+    playSfx("shutter");
+    setActive(i);
+  };
 
   useEffect(() => {
     if (active === null) return;
@@ -46,8 +63,10 @@ export default function Gallery({ images = [] }: GalleryProps) {
     if (dx < -48) next();
   };
 
+  const current = active !== null ? photos[active] : null;
+
   return (
-    <section ref={ref} className="flex flex-col items-center px-4 py-16 sm:py-20">
+    <section id="memories" ref={ref} className="flex scroll-mt-16 flex-col items-center px-4 py-16 sm:py-20">
       <motion.h2
         initial={{ opacity: 0, y: 12 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -58,24 +77,24 @@ export default function Gallery({ images = [] }: GalleryProps) {
       </motion.h2>
 
       <div className="grid w-full max-w-md grid-cols-2 gap-3 sm:max-w-lg sm:gap-5">
-        {photos.map((src, i) => (
+        {photos.map((memory, i) => (
           <motion.button
-            key={src}
+            key={memory.src}
             type="button"
             initial={{ opacity: 0, y: 24, rotate: 0 }}
             whileInView={{ opacity: 1, y: 0, rotate: [-5, 4, -3, 6, -2][i] ?? 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ delay: i * 0.12, duration: 0.55, ease: "backOut" }}
             whileTap={{ scale: 0.97, rotate: 0 }}
-            onClick={() => setActive(i)}
+            onClick={() => open(i)}
             className={`aspect-[3/4] overflow-hidden rounded-xl border-4 border-cream bg-lavender/40 shadow-xl ${
               i === photos.length - 1 && photos.length % 2 === 1 ? "col-span-2 mx-auto w-[48%]" : ""
             }`}
-            aria-label={`Open memory ${i + 1}`}
+            aria-label={`Open memory: ${memory.title}`}
           >
             <img
-              src={src}
-              alt={`Memory ${i + 1}`}
+              src={memory.src}
+              alt={memory.title}
               className="h-full w-full object-cover"
               style={{ objectPosition: "center 18%" }}
             />
@@ -94,7 +113,7 @@ export default function Gallery({ images = [] }: GalleryProps) {
       </div>
 
       <AnimatePresence>
-        {active !== null && photos[active] && (
+        {current && active !== null && (
           <motion.div
             className="fixed inset-0 z-[70] flex items-center justify-center bg-plum-deep/92 px-3 backdrop-blur-md"
             initial={{ opacity: 0 }}
@@ -128,17 +147,25 @@ export default function Gallery({ images = [] }: GalleryProps) {
               <ChevronLeft size={24} />
             </button>
 
-            <motion.img
-              key={photos[active]}
-              src={photos[active]}
-              alt={`Memory ${active + 1}`}
-              initial={{ opacity: 0, scale: 0.92 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.94 }}
-              transition={{ duration: 0.28 }}
-              onClick={(e) => e.stopPropagation()}
-              className="max-h-[82dvh] max-w-[min(100%,920px)] rounded-lg object-contain shadow-2xl"
-            />
+            <div className="flex max-h-[88dvh] w-full max-w-[min(100%,920px)] flex-col items-center" onClick={(e) => e.stopPropagation()}>
+              <motion.img
+                key={current.src}
+                src={current.src}
+                alt={current.title}
+                initial={{ opacity: 0, scale: 0.92 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.94 }}
+                transition={{ duration: 0.28 }}
+                className="max-h-[68dvh] w-auto max-w-full rounded-lg object-contain shadow-2xl"
+              />
+              <div className="mt-4 max-w-sm px-4 text-center">
+                <p className="font-display text-xl italic text-blossom">{current.title}</p>
+                <p className="mt-1 font-body text-sm text-lavender">{current.caption}</p>
+                <p className="mt-2 font-body text-xs text-lavender/70">
+                  {active + 1} / {photos.length}
+                </p>
+              </div>
+            </div>
 
             <button
               type="button"
@@ -151,10 +178,6 @@ export default function Gallery({ images = [] }: GalleryProps) {
             >
               <ChevronRight size={24} />
             </button>
-
-            <p className="absolute bottom-4 left-0 right-0 text-center font-body text-xs text-lavender">
-              {active + 1} / {photos.length}
-            </p>
           </motion.div>
         )}
       </AnimatePresence>

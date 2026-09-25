@@ -6,23 +6,23 @@ import PhotoReveal from "./components/PhotoReveal";
 import LoveLetter from "./components/LoveLetter";
 import LoveJourney from "./components/LoveJourney";
 import Gallery from "./components/Gallery";
+import SurpriseGift from "./components/SurpriseGift";
+import LoveStoryTimeline from "./components/LoveStoryTimeline";
+import LoveQuiz from "./components/LoveQuiz";
+import BucketList from "./components/BucketList";
 import ReasonsILoveYou from "./components/ReasonsILoveYou";
 import BirthdaySurprise from "./components/BirthdaySurprise";
 import FinalSurprise from "./components/FinalSurprise";
 import FloatingHearts from "./components/FloatingHearts";
 import StarField from "./components/StarField";
-import MusicPlayer from "./components/MusicPlayer";
+import AudioDock from "./components/AudioDock";
+import SectionNav from "./components/SectionNav";
+import { MEMORIES } from "./data/memories";
 
 const GIRLFRIEND_NAME = "Jennifer Dumaog";
 const MY_NAME = "Riyad";
 
-const GALLERY_IMAGES = [
-  "/gallery/1.jpg",
-  "/gallery/2.jpg",
-  "/gallery/3.jpg",
-  "/gallery/4.jpg",
-  "/gallery/5.jpg",
-];
+const GALLERY_IMAGES = MEMORIES.map((m) => m.src);
 
 const LETTER_PARAGRAPHS = [
   "I wish I could be beside you right now, hold your hand, look into your eyes, and tell you how much you mean to me.",
@@ -38,7 +38,7 @@ export default function App() {
 
   return (
     <div className="relative min-h-[100dvh] w-full overflow-x-hidden bg-plum-deep font-body">
-      <MusicPlayer />
+      <AudioDock />
 
       <AnimatePresence mode="wait">
         {!opened && (
@@ -62,6 +62,7 @@ export default function App() {
           </div>
           <FloatingHearts interactive density={10} className="fixed inset-0 z-30" />
 
+          <SectionNav />
           <AnimatedFlower />
           <PhotoReveal
             name={GIRLFRIEND_NAME}
@@ -70,7 +71,11 @@ export default function App() {
           />
           <LoveLetter from={MY_NAME} to={GIRLFRIEND_NAME} paragraphs={LETTER_PARAGRAPHS} />
           <LoveJourney />
-          <Gallery images={GALLERY_IMAGES} />
+          <Gallery />
+          <SurpriseGift />
+          <LoveStoryTimeline />
+          <LoveQuiz />
+          <BucketList />
           <ReasonsILoveYou />
           <BirthdaySurprise name={GIRLFRIEND_NAME} from={MY_NAME} images={GALLERY_IMAGES} />
           <FinalSurprise name={GIRLFRIEND_NAME} from={MY_NAME} />
