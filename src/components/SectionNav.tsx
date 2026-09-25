@@ -8,6 +8,7 @@ const LINKS = [
   { href: "#quiz", label: "Quiz" },
   { href: "#dreams", label: "Dreams" },
   { href: "#fly", label: "Fly" },
+  { href: "#love-world", label: "Us" },
   { href: "#birthday", label: "Birthday" },
 ];
 

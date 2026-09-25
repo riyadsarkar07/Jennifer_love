@@ -11,6 +11,7 @@ import LoveStoryTimeline from "./components/LoveStoryTimeline";
 import LoveQuiz from "./components/LoveQuiz";
 import BucketList from "./components/BucketList";
 import FlyToYou from "./components/FlyToYou";
+import LoveWorld from "./components/LoveWorld";
 import ReasonsILoveYou from "./components/ReasonsILoveYou";
 import BirthdaySurprise from "./components/BirthdaySurprise";
 import FinalSurprise from "./components/FinalSurprise";
@@ -78,6 +79,7 @@ export default function App() {
           <LoveQuiz />
           <BucketList />
           <FlyToYou />
+          <LoveWorld />
           <ReasonsILoveYou />
           <BirthdaySurprise name={GIRLFRIEND_NAME} from={MY_NAME} images={GALLERY_IMAGES} />
           <FinalSurprise name={GIRLFRIEND_NAME} from={MY_NAME} />
