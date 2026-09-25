@@ -48,6 +48,10 @@ export default {
           "42%": { transform: "scale(1.12)" },
           "70%": { transform: "scale(1)" },
         },
+        flicker: {
+          "0%, 100%": { transform: "scaleY(1) translateY(0)", opacity: "0.85" },
+          "50%": { transform: "scaleY(1.18) translateY(-1px)", opacity: "1" },
+        },
       },
       animation: {
         float: "float 6s ease-in-out infinite",
@@ -55,6 +59,7 @@ export default {
         twinkle: "twinkle 3s ease-in-out infinite",
         pulseGlow: "pulseGlow 2.8s ease-in-out infinite",
         heartbeat: "heartbeat 1.8s ease-in-out infinite",
+        flicker: "flicker 0.7s ease-in-out infinite",
       },
     },
   },

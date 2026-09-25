@@ -6,6 +6,7 @@ import PhotoReveal from "./components/PhotoReveal";
 import LoveLetter from "./components/LoveLetter";
 import Gallery from "./components/Gallery";
 import ReasonsILoveYou from "./components/ReasonsILoveYou";
+import BirthdaySurprise from "./components/BirthdaySurprise";
 import FinalSurprise from "./components/FinalSurprise";
 import FloatingHearts from "./components/FloatingHearts";
 import StarField from "./components/StarField";
@@ -69,6 +70,7 @@ export default function App() {
           <LoveLetter from={MY_NAME} to={GIRLFRIEND_NAME} paragraphs={LETTER_PARAGRAPHS} />
           <Gallery images={GALLERY_IMAGES} />
           <ReasonsILoveYou />
+          <BirthdaySurprise name={GIRLFRIEND_NAME} from={MY_NAME} images={GALLERY_IMAGES} />
           <FinalSurprise name={GIRLFRIEND_NAME} from={MY_NAME} />
         </motion.main>
       )}
