@@ -4,7 +4,6 @@ import { Gift, Heart, Lock } from "lucide-react";
 import BirthdayCountdown from "./BirthdayCountdown";
 import { useBirthdayCountdown } from "../hooks/useBirthdayCountdown";
 import { useReducedMotion } from "../hooks/useReducedMotion";
-import { playSound } from "../hooks/useSound";
 
 interface BirthdaySurpriseProps {
   name: string;
@@ -167,7 +166,6 @@ export default function BirthdaySurprise({ name, from, images }: BirthdaySurpris
     }
     if (celebrated.current) return;
     celebrated.current = true;
-    playSound("/audio/celebrate.wav", 0.5);
     if (reduced) {
       setGiftOpened(true);
       setEnvelopeOpen(true);
@@ -175,7 +173,6 @@ export default function BirthdaySurprise({ name, from, images }: BirthdaySurpris
     }
     const t1 = window.setTimeout(() => setOpening(true), 700);
     const t2 = window.setTimeout(() => {
-      playSound("/audio/gift.wav", 0.55);
       setGiftOpened(true);
       setOpening(false);
     }, 1400);
@@ -190,7 +187,6 @@ export default function BirthdaySurprise({ name, from, images }: BirthdaySurpris
   const openGift = () => {
     if (!isBirthday || giftOpened || opening) return;
     setOpening(true);
-    playSound("/audio/gift.wav", 0.6);
     window.setTimeout(() => {
       setGiftOpened(true);
       setEnvelopeOpen(true);
@@ -364,10 +360,7 @@ export default function BirthdaySurprise({ name, from, images }: BirthdaySurpris
               <motion.button
                 key="envelope"
                 type="button"
-                onClick={() => {
-                  playSound("/audio/gift.wav", 0.45);
-                  setEnvelopeOpen(true);
-                }}
+                onClick={() => setEnvelopeOpen(true)}
                 initial={{ opacity: 0, scale: 0.86 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9, y: -12 }}

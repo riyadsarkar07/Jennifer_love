@@ -37,7 +37,7 @@ export default function App() {
 
   return (
     <div className="relative min-h-[100dvh] w-full overflow-x-hidden bg-plum-deep font-body">
-      <MusicPlayer armed={opened} />
+      <MusicPlayer />
 
       <AnimatePresence mode="wait">
         {!opened && (

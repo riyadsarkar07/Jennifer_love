@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { Heart } from "lucide-react";
-import { playSound } from "../hooks/useSound";
 
 interface LoveLetterProps {
   from: string;
@@ -31,10 +30,7 @@ export default function LoveLetter({ from, to, paragraphs }: LoveLetterProps) {
           <motion.button
             key="envelope"
             type="button"
-            onClick={() => {
-              playSound("/audio/gift.wav", 0.5);
-              setOpen(true);
-            }}
+            onClick={() => setOpen(true)}
             initial={{ opacity: 0, scale: 0.82 }}
             animate={inView ? { opacity: 1, scale: 1 } : {}}
             exit={{ opacity: 0, scale: 0.88, y: -18, rotateX: 40 }}

@@ -1,24 +1,14 @@
-import { useEffect, useRef, useState } from "react";
-import { Music, VolumeX } from "lucide-react";
+import { useRef, useState } from "react";
+import { Music, Pause } from "lucide-react";
 
 interface MusicPlayerProps {
-  armed: boolean;
   src?: string;
 }
 
-export default function MusicPlayer({ armed, src = "/audio/song.wav" }: MusicPlayerProps) {
+export default function MusicPlayer({ src = "/audio/song.wav" }: MusicPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
   const [unavailable, setUnavailable] = useState(false);
-
-  useEffect(() => {
-    if (!armed || unavailable || !audioRef.current) return;
-    audioRef.current.volume = 0.42;
-    audioRef.current
-      .play()
-      .then(() => setPlaying(true))
-      .catch(() => setPlaying(false));
-  }, [armed, unavailable]);
 
   const toggle = () => {
     const audio = audioRef.current;
@@ -28,7 +18,7 @@ export default function MusicPlayer({ armed, src = "/audio/song.wav" }: MusicPla
       setPlaying(false);
       return;
     }
-    audio.volume = 0.42;
+    audio.volume = 0.32;
     audio
       .play()
       .then(() => setPlaying(true))
@@ -42,7 +32,16 @@ export default function MusicPlayer({ armed, src = "/audio/song.wav" }: MusicPla
         src={src}
         loop
         preload="auto"
-        onError={() => setUnavailable(true)}
+        onEnded={() => {
+          const audio = audioRef.current;
+          if (!audio) return;
+          audio.currentTime = 0;
+          void audio.play().catch(() => setPlaying(false));
+        }}
+        onError={() => {
+          setUnavailable(true);
+          setPlaying(false);
+        }}
       />
       <button
         type="button"
@@ -52,7 +51,7 @@ export default function MusicPlayer({ armed, src = "/audio/song.wav" }: MusicPla
         title={unavailable ? "Music file is unavailable" : playing ? "Pause music" : "Play music"}
         className="flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 bg-plum-light/80 text-gold shadow-lg backdrop-blur-md transition-transform active:scale-90 disabled:opacity-40"
       >
-        {playing ? <Music size={18} className="animate-pulse" /> : <VolumeX size={18} />}
+        {playing ? <Pause size={18} /> : <Music size={18} />}
       </button>
     </div>
   );

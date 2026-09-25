@@ -1,7 +1,6 @@
-Original, royalty-free audio generated for this site:
+Background music:
 
-- song.wav — soft looping background music
-- celebrate.wav — birthday reveal chime
-- gift.wav — gift / envelope open chime
+- song.wav — original soft piano loop, generated for this site
 
-Playback starts only after the visitor opens the surprise.
+Music starts only after the visitor taps the play button.
+There are no gift, letter, or celebration sound effects.
