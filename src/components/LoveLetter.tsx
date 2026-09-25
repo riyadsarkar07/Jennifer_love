@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { Heart } from "lucide-react";
+import { playSound } from "../hooks/useSound";
 
 interface LoveLetterProps {
   from: string;
@@ -30,7 +31,10 @@ export default function LoveLetter({ from, to, paragraphs }: LoveLetterProps) {
           <motion.button
             key="envelope"
             type="button"
-            onClick={() => setOpen(true)}
+            onClick={() => {
+              playSound("/audio/gift.wav", 0.5);
+              setOpen(true);
+            }}
             initial={{ opacity: 0, scale: 0.82 }}
             animate={inView ? { opacity: 1, scale: 1 } : {}}
             exit={{ opacity: 0, scale: 0.88, y: -18, rotateX: 40 }}
@@ -45,9 +49,11 @@ export default function LoveLetter({ from, to, paragraphs }: LoveLetterProps) {
             />
             <div className="relative h-full w-full overflow-hidden rounded-lg border border-gold/40 bg-gradient-to-b from-[#F4E3C6] to-[#E0B87A] shadow-2xl">
               <div className="absolute inset-x-6 bottom-7 top-10 rounded-sm bg-cream/80" />
-              <div
-                className="absolute inset-x-0 top-0 z-10 h-[58%] bg-gradient-to-b from-[#F8EBD6] to-[#D4A574]"
+              <motion.div
+                className="absolute inset-x-0 top-0 z-10 h-[58%] origin-top bg-gradient-to-b from-[#F8EBD6] to-[#D4A574]"
                 style={{ clipPath: "polygon(0 0, 50% 78%, 100% 0)" }}
+                animate={{ rotateX: [0, -18, 0] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
               />
               <Heart
                 size={20}

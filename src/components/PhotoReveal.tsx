@@ -22,7 +22,7 @@ export default function PhotoReveal({
   caption = "You make my world brighter",
 }: PhotoRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.35 });
+  const inView = useInView(ref, { once: true, amount: 0.2 });
   const [failed, setFailed] = useState(false);
 
   return (

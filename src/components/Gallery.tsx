@@ -8,7 +8,7 @@ interface GalleryProps {
 
 export default function Gallery({ images = [] }: GalleryProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.2 });
+  const inView = useInView(ref, { once: true, amount: 0.12 });
   const [active, setActive] = useState<number | null>(null);
   const touchX = useRef(0);
   const photos = images.filter(Boolean);
@@ -63,7 +63,8 @@ export default function Gallery({ images = [] }: GalleryProps) {
             key={src}
             type="button"
             initial={{ opacity: 0, y: 24, rotate: 0 }}
-            animate={inView ? { opacity: 1, y: 0, rotate: [-5, 4, -3, 6, -2][i] ?? 0 } : {}}
+            whileInView={{ opacity: 1, y: 0, rotate: [-5, 4, -3, 6, -2][i] ?? 0 }}
+            viewport={{ once: true, amount: 0.2 }}
             transition={{ delay: i * 0.12, duration: 0.55, ease: "backOut" }}
             whileTap={{ scale: 0.97, rotate: 0 }}
             onClick={() => setActive(i)}

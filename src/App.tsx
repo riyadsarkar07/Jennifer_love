@@ -56,10 +56,10 @@ export default function App() {
           transition={{ duration: 1 }}
           className="relative w-full overflow-x-hidden bg-gradient-to-b from-plum-deep via-plum to-plum-light"
         >
-          <div className="pointer-events-none fixed inset-0 -z-10">
-            <StarField count={28} />
+          <div className="pointer-events-none fixed inset-0 z-[1]">
+            <StarField count={36} />
           </div>
-          <FloatingHearts interactive density={7} className="fixed inset-0 z-40" />
+          <FloatingHearts interactive density={10} className="fixed inset-0 z-30" />
 
           <AnimatedFlower />
           <PhotoReveal

@@ -1,8 +1,10 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useInView } from "framer-motion";
-import { Gift, Heart } from "lucide-react";
+import { Gift, Heart, Lock } from "lucide-react";
 import BirthdayCountdown from "./BirthdayCountdown";
+import { useBirthdayCountdown } from "../hooks/useBirthdayCountdown";
 import { useReducedMotion } from "../hooks/useReducedMotion";
+import { playSound } from "../hooks/useSound";
 
 interface BirthdaySurpriseProps {
   name: string;
@@ -64,37 +66,134 @@ function BirthdayCake({ play, reduced }: { play: boolean; reduced: boolean }) {
             rx="5"
             ry="9"
             fill="#E8B978"
-            initial={{ opacity: 0.7, scale: 0.8 }}
             animate={
               play && !reduced
-                ? { opacity: [0.55, 1, 0.7], scale: [0.85, 1.15, 0.9], y: [0, -1.5, 0] }
+                ? { opacity: [0.55, 1, 0.7], scale: [0.85, 1.18, 0.92], y: [0, -2, 0] }
                 : { opacity: 1, scale: 1 }
             }
-            transition={{ duration: 0.7, delay: c.delay, repeat: Infinity, ease: "easeInOut" }}
+            transition={{ duration: 0.65, delay: c.delay, repeat: Infinity, ease: "easeInOut" }}
             style={{ transformOrigin: `${c.x + 3}px 28px` }}
           />
-          <circle cx={c.x + 3} cy="24" r="2" fill="#FBF3EC" opacity="0.85" />
+          <motion.ellipse
+            cx={c.x + 3}
+            cy="16"
+            rx="2.4"
+            ry="4"
+            fill="#FBF3EC"
+            animate={play && !reduced ? { opacity: [0.4, 0.95, 0.4], y: [0, -3, 0] } : { opacity: 0.7 }}
+            transition={{ duration: 0.55, delay: c.delay, repeat: Infinity }}
+          />
         </g>
       ))}
     </svg>
   );
 }
 
+function BirthdayLetter({ firstName, from }: { firstName: string; from: string }) {
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 28, rotateX: -16, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
+      transition={{ duration: 0.85, ease: "easeOut" }}
+      className="relative w-full max-w-md overflow-hidden rounded-sm border border-gold/30 bg-[#FBF3EC] px-4 py-5 shadow-2xl sm:px-8 sm:py-8"
+      style={{
+        backgroundImage:
+          "repeating-linear-gradient(transparent, transparent 27px, rgba(196,65,92,0.08) 28px)",
+      }}
+    >
+      <div className="mb-4 flex items-center justify-center gap-2 text-rose">
+        <Gift size={18} />
+        <Heart size={16} className="fill-rose text-rose animate-heartbeat" />
+        <Gift size={18} />
+      </div>
+      <p className="mb-4 text-center font-display text-xl italic text-plum-deep">
+        Happy Birthday, My Dearest {firstName}!
+      </p>
+      {BIRTHDAY_PARAGRAPHS.map((p, i) => (
+        <motion.p
+          key={i}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.22 + i * 0.18, duration: 0.5 }}
+          className="mb-3 font-body text-[15px] leading-relaxed text-plum-deep/90 sm:text-base"
+        >
+          {p}
+        </motion.p>
+      ))}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.3, duration: 0.6 }}
+        className="mt-2 font-body text-[15px] font-semibold text-plum-deep sm:text-base"
+      >
+        Happy Birthday, My Love!
+      </motion.p>
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5, duration: 0.7 }}
+        className="mt-5 text-right font-script text-[1.45rem] leading-snug text-rose sm:text-3xl"
+      >
+        Forever yours,
+        <br />
+        {from}
+      </motion.p>
+    </motion.article>
+  );
+}
+
 export default function BirthdaySurprise({ name, from, images }: BirthdaySurpriseProps) {
   const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.18 });
+  const inView = useInView(ref, { once: true, amount: 0.12 });
   const reduced = useReducedMotion();
-  const [opened, setOpened] = useState(false);
+  const parts = useBirthdayCountdown();
+  const isBirthday = parts.phase === "today";
+  const hasEnded = parts.phase === "after";
+  const [envelopeOpen, setEnvelopeOpen] = useState(false);
+  const [giftOpened, setGiftOpened] = useState(false);
   const [opening, setOpening] = useState(false);
+  const celebrated = useRef(false);
   const firstName = name.split(" ")[0];
   const photos = images.filter(Boolean);
-  const play = inView || reduced;
+  const play = inView;
+
+  useEffect(() => {
+    if (!isBirthday) {
+      setEnvelopeOpen(false);
+      setGiftOpened(false);
+      setOpening(false);
+      celebrated.current = false;
+      return;
+    }
+    if (celebrated.current) return;
+    celebrated.current = true;
+    playSound("/audio/celebrate.wav", 0.5);
+    if (reduced) {
+      setGiftOpened(true);
+      setEnvelopeOpen(true);
+      return;
+    }
+    const t1 = window.setTimeout(() => setOpening(true), 700);
+    const t2 = window.setTimeout(() => {
+      playSound("/audio/gift.wav", 0.55);
+      setGiftOpened(true);
+      setOpening(false);
+    }, 1400);
+    const t3 = window.setTimeout(() => setEnvelopeOpen(true), 2200);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+      window.clearTimeout(t3);
+    };
+  }, [isBirthday, reduced]);
 
   const openGift = () => {
-    if (opened || opening) return;
+    if (!isBirthday || giftOpened || opening) return;
     setOpening(true);
+    playSound("/audio/gift.wav", 0.6);
     window.setTimeout(() => {
-      setOpened(true);
+      setGiftOpened(true);
+      setEnvelopeOpen(true);
       setOpening(false);
     }, reduced ? 80 : 700);
   };
@@ -104,7 +203,7 @@ export default function BirthdaySurprise({ name, from, images }: BirthdaySurpris
       ref={ref}
       className="relative flex flex-col items-center overflow-hidden px-4 py-16 sm:py-20"
     >
-      {!reduced &&
+      {isBirthday && !reduced &&
         CONFETTI.map((c, i) => (
           <span
             key={`confetti-${i}`}
@@ -114,12 +213,11 @@ export default function BirthdaySurprise({ name, from, images }: BirthdaySurpris
               background: c.color,
               animationDelay: `${c.delay}s`,
               animationDuration: "8.5s",
-              transform: `rotate(${c.rotate}deg)`,
             }}
           />
         ))}
 
-      {!reduced &&
+      {isBirthday && !reduced &&
         FIREWORKS.map((f, i) => (
           <motion.span
             key={`fw-${i}`}
@@ -132,166 +230,179 @@ export default function BirthdaySurprise({ name, from, images }: BirthdaySurpris
 
       <motion.h2
         initial={{ opacity: 0, y: 14 }}
-        animate={play ? { opacity: 1, y: 0 } : {}}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.5 }}
         transition={{ duration: 0.7 }}
         className="relative z-10 mb-3 max-w-[18rem] text-center font-display text-[1.7rem] italic leading-tight text-blossom sm:max-w-lg sm:text-4xl"
       >
-        Happy Birthday {firstName}
+        {isBirthday ? `Happy Birthday ${firstName}` : `${firstName}'s Birthday`}
       </motion.h2>
       <motion.p
         initial={{ opacity: 0 }}
-        animate={play ? { opacity: 1 } : {}}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
         transition={{ delay: 0.2, duration: 0.7 }}
         className="relative z-10 mb-8 max-w-xs text-center font-body text-sm text-lavender sm:text-base"
       >
-        June 27 — a little celebration, made just for you
+        {isBirthday
+          ? "June 27 — a little celebration, made just for you"
+          : hasEnded
+            ? "This year's birthday surprise has ended"
+            : "A surprise waits for June 27"}
       </motion.p>
 
-      <BirthdayCountdown name={name} />
+      {hasEnded && (
+        <p className="mb-6 max-w-[20rem] text-center font-body text-sm text-blossom sm:max-w-md">
+          The birthday letter is tucked away until next June 27. Until then, here is the countdown to her next birthday.
+        </p>
+      )}
+
+      <BirthdayCountdown name={name} parts={parts} ended={hasEnded} />
 
       <motion.div
         initial={{ opacity: 0, scale: 0.88 }}
-        animate={play ? { opacity: 1, scale: 1 } : {}}
-        transition={{ delay: 0.35, duration: 0.7, ease: "backOut" }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.2, duration: 0.7, ease: "backOut" }}
         className="relative mt-10"
       >
         <div className="pointer-events-none absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-rose/35 blur-3xl" />
-        <BirthdayCake play={play} reduced={reduced} />
+        <BirthdayCake play={play || isBirthday} reduced={reduced} />
       </motion.div>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={play ? { opacity: 1 } : {}}
-        transition={{ delay: 0.5, duration: 0.7 }}
-        className="mt-4 font-display text-xl italic text-gold sm:text-2xl"
-      >
-        Happy Birthday, {name}
-      </motion.p>
+      {isBirthday && (
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4, duration: 0.7 }}
+          className="mt-4 px-3 text-center font-display text-xl italic text-gold sm:text-2xl"
+        >
+          Happy Birthday, {name}
+        </motion.p>
+      )}
 
       <div className="mt-12 flex w-full max-w-md flex-col items-center">
-        <AnimatePresence mode="wait">
-          {!opened ? (
-            <motion.div
-              key="gift"
-              initial={{ opacity: 0, y: 18 }}
-              animate={play ? { opacity: 1, y: 0 } : {}}
-              exit={{ opacity: 0, y: -16, scale: 0.92 }}
-              className="flex w-full flex-col items-center"
-            >
-              <button
-                type="button"
-                onClick={openGift}
-                aria-label="Open your birthday gift"
-                className="relative flex h-[150px] w-[160px] items-end justify-center sm:h-[170px] sm:w-[180px]"
-              >
-                <motion.div
-                  className="absolute inset-0 rounded-2xl bg-gold/30 blur-xl"
-                  animate={{ opacity: [0.35, 0.85, 0.35] }}
-                  transition={{ duration: 2.4, repeat: Infinity }}
+        {!isBirthday && (
+          <div className="flex w-full flex-col items-center">
+            <div className="relative flex h-[150px] w-[160px] items-end justify-center opacity-80 sm:h-[170px] sm:w-[180px]">
+              <div className="relative h-[108px] w-[140px] rounded-md bg-rose/80 shadow-2xl sm:h-[120px] sm:w-[156px]">
+                <div className="absolute left-1/2 top-0 h-full w-7 -translate-x-1/2 bg-gold/80" />
+                <div className="absolute left-0 top-[42%] h-7 w-full bg-gold/80" />
+                <div className="absolute -top-8 left-1/2 h-10 w-[156px] -translate-x-1/2 rounded-sm bg-rose-light/80 shadow-lg sm:w-[172px]">
+                  <div className="absolute left-1/2 top-0 h-full w-7 -translate-x-1/2 bg-gold/80" />
+                </div>
+                <Lock
+                  size={18}
+                  className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 text-cream"
                 />
-                <div className="relative h-[108px] w-[140px] rounded-md bg-rose shadow-2xl sm:h-[120px] sm:w-[156px]">
-                  <div className="absolute left-1/2 top-0 h-full w-7 -translate-x-1/2 bg-gold" />
-                  <div className="absolute left-0 top-[42%] h-7 w-full bg-gold" />
+              </div>
+            </div>
+            <p className="mt-5 max-w-[16rem] text-center font-body text-sm text-lavender">
+              {hasEnded
+                ? "The birthday gift will unlock again on June 27."
+                : "This gift unlocks on June 27."}
+            </p>
+          </div>
+        )}
+
+        {isBirthday && (
+          <AnimatePresence mode="wait">
+            {!giftOpened && !envelopeOpen ? (
+              <motion.div
+                key="gift"
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -16, scale: 0.92 }}
+                className="flex w-full flex-col items-center"
+              >
+                <button
+                  type="button"
+                  onClick={openGift}
+                  aria-label="Open your birthday gift"
+                  className="relative flex h-[150px] w-[160px] items-end justify-center sm:h-[170px] sm:w-[180px]"
+                >
                   <motion.div
-                    className="absolute -top-8 left-1/2 h-10 w-[156px] -translate-x-1/2 rounded-sm bg-rose-light shadow-lg sm:w-[172px]"
-                    animate={
-                      opening
-                        ? { y: -72, rotate: -18, opacity: 0 }
-                        : reduced
-                          ? {}
-                          : { y: [0, -4, 0] }
-                    }
-                    transition={
-                      opening
-                        ? { duration: 0.65, ease: "easeIn" }
-                        : { duration: 2.2, repeat: Infinity }
-                    }
-                  >
+                    className="absolute inset-0 rounded-2xl bg-gold/30 blur-xl"
+                    animate={{ opacity: [0.35, 0.85, 0.35] }}
+                    transition={{ duration: 2.4, repeat: Infinity }}
+                  />
+                  <div className="relative h-[108px] w-[140px] rounded-md bg-rose shadow-2xl sm:h-[120px] sm:w-[156px]">
                     <div className="absolute left-1/2 top-0 h-full w-7 -translate-x-1/2 bg-gold" />
-                  </motion.div>
+                    <div className="absolute left-0 top-[42%] h-7 w-full bg-gold" />
+                    <motion.div
+                      className="absolute -top-8 left-1/2 h-10 w-[156px] -translate-x-1/2 rounded-sm bg-rose-light shadow-lg sm:w-[172px]"
+                      animate={
+                        opening
+                          ? { y: -72, rotate: -18, opacity: 0 }
+                          : reduced
+                            ? {}
+                            : { y: [0, -4, 0] }
+                      }
+                      transition={
+                        opening
+                          ? { duration: 0.65, ease: "easeIn" }
+                          : { duration: 2.2, repeat: Infinity }
+                      }
+                    >
+                      <div className="absolute left-1/2 top-0 h-full w-7 -translate-x-1/2 bg-gold" />
+                    </motion.div>
+                    <Heart
+                      size={16}
+                      className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 fill-cream text-cream"
+                    />
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={openGift}
+                  className="mt-6 min-h-[48px] rounded-full bg-rose px-6 py-3 font-body text-sm font-semibold text-cream shadow-lg shadow-rose/40 transition-colors hover:bg-rose-light sm:text-base"
+                >
+                  Open Your Birthday Gift
+                </button>
+              </motion.div>
+            ) : !envelopeOpen ? (
+              <motion.button
+                key="envelope"
+                type="button"
+                onClick={() => {
+                  playSound("/audio/gift.wav", 0.45);
+                  setEnvelopeOpen(true);
+                }}
+                initial={{ opacity: 0, scale: 0.86 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9, y: -12 }}
+                className="relative flex h-40 w-[240px] flex-col items-center justify-end pb-4"
+                aria-label="Open the birthday letter"
+              >
+                <div className="relative h-full w-full overflow-hidden rounded-lg border border-gold/40 bg-gradient-to-b from-[#F4E3C6] to-[#E0B87A] shadow-2xl">
+                  <div className="absolute inset-x-6 bottom-7 top-10 rounded-sm bg-cream/80" />
+                  <motion.div
+                    className="absolute inset-x-0 top-0 z-10 h-[58%] origin-top bg-gradient-to-b from-[#F8EBD6] to-[#D4A574]"
+                    style={{ clipPath: "polygon(0 0, 50% 78%, 100% 0)" }}
+                    animate={{ rotateX: [0, -24, 0] }}
+                    transition={{ duration: 1.6, repeat: Infinity }}
+                  />
                   <Heart
-                    size={16}
-                    className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 fill-cream text-cream"
+                    size={20}
+                    className="absolute left-1/2 top-[40%] z-20 -translate-x-1/2 fill-rose text-rose"
                   />
                 </div>
-              </button>
-              <button
-                type="button"
-                onClick={openGift}
-                className="mt-6 min-h-[48px] rounded-full bg-rose px-6 py-3 font-body text-sm font-semibold text-cream shadow-lg shadow-rose/40 transition-colors hover:bg-rose-light sm:text-base"
-              >
-                Open Your Birthday Gift
-              </button>
-            </motion.div>
-          ) : (
-            <motion.article
-              key="letter"
-              initial={{ opacity: 0, y: 28, rotateX: -16, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
-              transition={{ duration: 0.85, ease: "easeOut" }}
-              className="relative w-full overflow-hidden rounded-sm border border-gold/30 bg-[#FBF3EC] px-5 py-6 shadow-2xl sm:px-8 sm:py-8"
-              style={{
-                backgroundImage:
-                  "repeating-linear-gradient(transparent, transparent 27px, rgba(196,65,92,0.08) 28px)",
-              }}
-            >
-              <div className="mb-4 flex items-center justify-center gap-2 text-rose">
-                <Gift size={18} />
-                <Heart size={16} className="fill-rose text-rose animate-heartbeat" />
-                <Gift size={18} />
-              </div>
-              <p className="mb-4 text-center font-display text-xl italic text-plum-deep">
-                Happy Birthday, My Dearest {firstName}!
-              </p>
-              {BIRTHDAY_PARAGRAPHS.map((p, i) => (
-                <motion.p
-                  key={i}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.22 + i * 0.18, duration: 0.5 }}
-                  className="mb-3 font-body text-[15px] leading-relaxed text-plum-deep/90 sm:text-base"
-                >
-                  {p}
-                </motion.p>
-              ))}
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.3, duration: 0.6 }}
-                className="mt-2 font-body text-[15px] font-semibold text-plum-deep sm:text-base"
-              >
-                Happy Birthday, My Love!
-              </motion.p>
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.5, duration: 0.7 }}
-                className="mt-5 text-right font-script text-[1.55rem] leading-snug text-rose sm:text-3xl"
-              >
-                Forever yours,
-                <br />
-                {from}
-              </motion.p>
-              {[0, 1, 2, 3].map((i) => (
-                <motion.span
-                  key={i}
-                  className="pointer-events-none absolute"
-                  style={{ top: `${12 + i * 22}%`, right: `${-2 + (i % 2) * 94}%` }}
-                  animate={{ y: [0, -8, 0], opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 3, repeat: Infinity, delay: i * 0.4 }}
-                >
-                  <Heart size={14} className="fill-rose-light text-rose-light" />
-                </motion.span>
-              ))}
-            </motion.article>
-          )}
-        </AnimatePresence>
+                <span className="relative z-20 mt-3 font-body text-sm font-semibold text-blossom">
+                  Opening your letter
+                </span>
+              </motion.button>
+            ) : (
+              <BirthdayLetter key="letter" firstName={firstName} from={from} />
+            )}
+          </AnimatePresence>
+        )}
       </div>
 
       <motion.h3
         initial={{ opacity: 0, y: 10 }}
-        animate={play ? { opacity: 1, y: 0 } : {}}
-        transition={{ delay: 0.2, duration: 0.6 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
         className="mt-16 mb-6 text-center font-display text-2xl italic text-blossom sm:text-3xl"
       >
         Birthday Memories
@@ -301,9 +412,10 @@ export default function BirthdaySurprise({ name, from, images }: BirthdaySurpris
         {photos.map((src, i) => (
           <motion.figure
             key={src}
-            initial={{ opacity: 0, y: 20, rotate: 0 }}
-            animate={play ? { opacity: 1, y: 0, rotate: [-4, 5, -2, 4, -3][i] ?? 0 } : {}}
-            transition={{ delay: 0.1 + i * 0.1, duration: 0.5, ease: "backOut" }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0, rotate: [-4, 5, -2, 4, -3][i] ?? 0 }}
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{ delay: 0.08 * i, duration: 0.5, ease: "backOut" }}
             className={`relative overflow-hidden rounded-xl border-4 border-gold/70 bg-cream shadow-xl ${
               i === photos.length - 1 && photos.length % 2 === 1 ? "col-span-2 mx-auto w-[48%]" : ""
             }`}

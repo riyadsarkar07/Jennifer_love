@@ -68,7 +68,7 @@ function RosePetal({
 
 export default function AnimatedFlower() {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.35 });
+  const inView = useInView(ref, { once: true, amount: 0.15 });
   const reduced = useReducedMotion();
   const play = inView || reduced;
   const bloomStart = reduced ? 0 : 2.15;
