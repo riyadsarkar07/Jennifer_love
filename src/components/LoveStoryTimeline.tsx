@@ -7,7 +7,7 @@ export default function LoveStoryTimeline() {
   const [openId, setOpenId] = useState<string | null>(TIMELINE_EVENTS[0]?.id ?? null);
 
   return (
-    <section id="story" className="flex scroll-mt-16 flex-col items-center px-4 py-16 sm:py-20">
+    <section id="story" className="flex scroll-mt-32 flex-col items-center px-4 py-16 sm:py-20">
       <motion.h2
         initial={{ opacity: 0, y: 12 }}
         whileInView={{ opacity: 1, y: 0 }}

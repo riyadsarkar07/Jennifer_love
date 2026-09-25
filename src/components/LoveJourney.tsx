@@ -41,7 +41,7 @@ export default function LoveJourney() {
   }, [parts.seconds, tickOn, muted, sfxOn]);
 
   return (
-    <section id="journey" className="relative flex scroll-mt-16 flex-col items-center overflow-hidden px-4 py-16 sm:py-20">
+    <section id="journey" className="relative flex scroll-mt-32 flex-col items-center overflow-hidden px-4 py-16 sm:py-20">
       <motion.div
         className="pointer-events-none absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-rose/30 blur-3xl sm:h-72 sm:w-72"
         animate={{ opacity: [0.35, 0.7, 0.35], scale: [1, 1.08, 1] }}

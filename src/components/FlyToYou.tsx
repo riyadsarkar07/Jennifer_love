@@ -71,7 +71,7 @@ export default function FlyToYou({
   return (
     <section
       id="fly"
-      className="relative flex scroll-mt-16 flex-col items-center overflow-hidden px-4 py-16 sm:py-20"
+      className="relative flex scroll-mt-32 flex-col items-center overflow-hidden px-4 py-16 sm:py-20"
     >
       <motion.div
         className="pointer-events-none absolute left-1/2 top-[42%] h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-rose/25 blur-3xl sm:h-80 sm:w-80"

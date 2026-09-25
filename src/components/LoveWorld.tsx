@@ -21,7 +21,7 @@ export default function LoveWorld() {
     <section
       id="love-world"
       ref={ref}
-      className="relative flex scroll-mt-16 flex-col items-center overflow-hidden px-4 py-16 sm:py-20"
+      className="relative flex scroll-mt-32 flex-col items-center overflow-hidden px-4 py-16 sm:py-20"
     >
       <motion.div
         className="pointer-events-none absolute left-1/2 top-24 h-48 w-48 -translate-x-1/2 rounded-full bg-rose/25 blur-3xl sm:h-64 sm:w-64"
@@ -67,9 +67,9 @@ export default function LoveWorld() {
             initial={{ opacity: 0, y: 22 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: reduced ? 0 : 0.08 + i * 0.08, duration: 0.55, ease: "easeOut" }}
-            className="overflow-hidden rounded-2xl border border-gold/30 bg-plum-light/50 shadow-lg shadow-rose/10 backdrop-blur-sm"
+            className="overflow-hidden rounded-2xl border border-gold/30 bg-blossom/20 shadow-lg shadow-rose/10 backdrop-blur-sm"
           >
-            <div className="aspect-[10/11] w-full">
+            <div className="aspect-[10/11] w-full min-h-[220px]">
               <CoupleScene scene={item.scene} />
             </div>
             <p className="px-3 py-3 text-center font-display text-sm italic leading-snug text-blossom sm:text-base">

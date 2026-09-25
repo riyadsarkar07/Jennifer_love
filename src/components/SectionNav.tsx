@@ -16,7 +16,7 @@ export default function SectionNav() {
   return (
     <nav
       aria-label="Page sections"
-      className="sticky top-0 z-40 overflow-x-auto border-b border-gold/20 bg-plum-deep/80 px-2 py-2 pr-[8.5rem] backdrop-blur-md"
+      className="sticky top-[3.75rem] z-40 overflow-x-auto border-b border-gold/20 bg-plum-deep/80 px-2 py-2 backdrop-blur-md sm:top-[4.25rem]"
     >
       <ul className="mx-auto flex w-max min-w-full items-center justify-center gap-1 sm:gap-2">
         {LINKS.map((link) => (

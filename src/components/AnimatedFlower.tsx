@@ -88,7 +88,7 @@ export default function AnimatedFlower() {
     <section
       id="garden"
       ref={ref}
-      className="relative flex scroll-mt-16 flex-col items-center overflow-hidden px-4 py-14 sm:py-20"
+      className="relative flex scroll-mt-32 flex-col items-center overflow-hidden px-4 py-14 sm:py-20"
     >
       <motion.h2
         initial={{ opacity: 0, y: 16 }}

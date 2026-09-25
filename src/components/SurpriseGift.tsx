@@ -36,7 +36,7 @@ export default function SurpriseGift() {
   };
 
   return (
-    <section id="gift" className="relative flex scroll-mt-16 flex-col items-center overflow-hidden px-4 py-16 sm:py-20">
+    <section id="gift" className="relative flex scroll-mt-32 flex-col items-center overflow-hidden px-4 py-16 sm:py-20">
       <motion.h2
         initial={{ opacity: 0, y: 12 }}
         whileInView={{ opacity: 1, y: 0 }}

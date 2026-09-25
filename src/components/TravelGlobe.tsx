@@ -34,7 +34,7 @@ interface TravelGlobeProps {
 
 const ORIGIN_MS = 2400;
 const HOLD_MS = 900;
-const FLIGHT_MS = 8200;
+const FLIGHT_MS = 9800;
 const ARRIVAL_MS = 2100;
 const MESSAGE_MS = 1500;
 
@@ -60,29 +60,110 @@ function drawAirplane(ctx: CanvasRenderingContext2D, x: number, y: number, angle
   ctx.translate(x, y);
   ctx.rotate(angle);
   ctx.scale(scale, scale);
-  ctx.shadowColor = "rgba(232,185,120,0.7)";
-  ctx.shadowBlur = 10;
-  ctx.fillStyle = "#FBF3EC";
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+  ctx.shadowColor = "rgba(232,185,120,0.55)";
+  ctx.shadowBlur = 14;
+
+  ctx.fillStyle = "#C9D4E8";
   ctx.beginPath();
-  ctx.moveTo(11, 0);
-  ctx.lineTo(-7, 3.2);
-  ctx.lineTo(-5, 0.6);
-  ctx.lineTo(-9, 0.6);
-  ctx.lineTo(-9, -0.6);
-  ctx.lineTo(-5, -0.6);
-  ctx.lineTo(-7, -3.2);
+  ctx.moveTo(-10, 0);
+  ctx.lineTo(-7, 5);
+  ctx.lineTo(-13, 11);
+  ctx.lineTo(-16, 10);
+  ctx.lineTo(-12, 0);
+  ctx.lineTo(-16, -10);
+  ctx.lineTo(-13, -11);
+  ctx.lineTo(-7, -5);
   ctx.closePath();
   ctx.fill();
+
+  ctx.fillStyle = "#F4F0EA";
+  ctx.beginPath();
+  ctx.moveTo(28, 0);
+  ctx.bezierCurveTo(24, -3.6, 10, -5.2, -6, -4.6);
+  ctx.lineTo(-22, -3.2);
+  ctx.bezierCurveTo(-26, -2.6, -27, -1.2, -27, 0);
+  ctx.bezierCurveTo(-27, 1.2, -26, 2.6, -22, 3.2);
+  ctx.lineTo(-6, 4.6);
+  ctx.bezierCurveTo(10, 5.2, 24, 3.6, 28, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = "rgba(42, 22, 48, 0.28)";
+  ctx.lineWidth = 0.7;
+  ctx.stroke();
+
+  ctx.fillStyle = "#D8C4A8";
+  ctx.beginPath();
+  ctx.moveTo(26.5, 0);
+  ctx.bezierCurveTo(23, -2.2, 14, -3.2, 6, -3);
+  ctx.lineTo(6, 3);
+  ctx.bezierCurveTo(14, 3.2, 23, 2.2, 26.5, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#8FA3C4";
+  ctx.beginPath();
+  ctx.moveTo(4, 0);
+  ctx.lineTo(-1, 16);
+  ctx.lineTo(-8, 15.2);
+  ctx.lineTo(-4, 0);
+  ctx.lineTo(-8, -15.2);
+  ctx.lineTo(-1, -16);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = "rgba(42, 22, 48, 0.22)";
+  ctx.lineWidth = 0.6;
+  ctx.stroke();
+
   ctx.fillStyle = "#E8B978";
   ctx.beginPath();
-  ctx.moveTo(2, 0);
-  ctx.lineTo(-4, 7);
-  ctx.lineTo(-6, 6.2);
-  ctx.lineTo(-2, 0);
-  ctx.lineTo(-6, -6.2);
-  ctx.lineTo(-4, -7);
+  ctx.moveTo(-2, 7);
+  ctx.lineTo(-5, 12.5);
+  ctx.lineTo(-8, 12);
+  ctx.lineTo(-4.5, 7);
   ctx.closePath();
   ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(-2, -7);
+  ctx.lineTo(-5, -12.5);
+  ctx.lineTo(-8, -12);
+  ctx.lineTo(-4.5, -7);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#5A6F8C";
+  ctx.beginPath();
+  ctx.moveTo(-18, 0);
+  ctx.lineTo(-23, 7.5);
+  ctx.lineTo(-26, 6.6);
+  ctx.lineTo(-22, 0);
+  ctx.lineTo(-26, -6.6);
+  ctx.lineTo(-23, -7.5);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#3E1A40";
+  for (let i = 0; i < 5; i++) {
+    ctx.beginPath();
+    ctx.ellipse(8 - i * 3.2, 0, 1.15, 1.45, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = "#7EB7E0";
+  ctx.beginPath();
+  ctx.ellipse(20, 0, 2.1, 1.7, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#C4415C";
+  ctx.beginPath();
+  ctx.moveTo(27.2, 0);
+  ctx.lineTo(22, -1.4);
+  ctx.lineTo(22, 1.4);
+  ctx.closePath();
+  ctx.fill();
+
   ctx.restore();
 }
 
@@ -441,15 +522,15 @@ export default function TravelGlobe({
           } else ctx.lineTo(p.x, p.y);
         }
         if (glow) {
-          ctx.strokeStyle = "rgba(232,137,160,0.9)";
-          ctx.shadowColor = "rgba(232,185,120,0.85)";
-          ctx.shadowBlur = 12;
-          ctx.lineWidth = 2.6;
+          ctx.strokeStyle = "rgba(232,137,160,0.95)";
+          ctx.shadowColor = "rgba(232,185,120,0.9)";
+          ctx.shadowBlur = 16;
+          ctx.lineWidth = 3.4;
         } else {
-          ctx.strokeStyle = "rgba(232,185,120,0.28)";
+          ctx.strokeStyle = "rgba(232,185,120,0.38)";
           ctx.shadowBlur = 0;
-          ctx.lineWidth = 1.2;
-          ctx.setLineDash([4, 5]);
+          ctx.lineWidth = 1.6;
+          ctx.setLineDash([5, 6]);
         }
         ctx.lineCap = "round";
         ctx.stroke();
@@ -494,14 +575,15 @@ export default function TravelGlobe({
       if (showPlane) {
         const t = clamp(flightT, 0.002, 0.998);
         const pos = slerp(a, b, t);
-        const next = slerp(a, b, Math.min(1, t + 0.012));
+        const next = slerp(a, b, Math.min(1, t + 0.018));
         const rv = rotateToCamera(pos, cam);
         const nv = rotateToCamera(next, cam);
         if (isFront(rv)) {
           const p = project(rv, cx, cy, radius);
           const q = project(nv, cx, cy, radius);
           const ang = Math.atan2(q.y - p.y, q.x - p.x);
-          drawAirplane(ctx, p.x, p.y, ang, 1.15);
+          const planeScale = Math.max(1.85, Math.min(cssW, cssH) / 210);
+          drawAirplane(ctx, p.x, p.y, ang, planeScale);
         }
       }
 

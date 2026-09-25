@@ -38,7 +38,7 @@ export default function OpeningScreen({ onOpen, girlfriendName }: OpeningScreenP
     <motion.div
       exit={{ opacity: 0, scale: 1.06, filter: "blur(8px)" }}
       transition={{ duration: 0.9, ease: "easeInOut" }}
-      className="relative flex min-h-[100dvh] w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-plum-deep via-plum to-plum-light px-5 py-10 text-center"
+      className="relative flex min-h-[100dvh] w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-plum-deep via-plum to-plum-light px-5 pb-10 pt-24 text-center sm:pt-28"
     >
       <StarField count={48} />
 
