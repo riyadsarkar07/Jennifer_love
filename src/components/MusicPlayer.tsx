@@ -2,33 +2,29 @@ import { useEffect, useRef, useState } from "react";
 import { Music, VolumeX } from "lucide-react";
 
 interface MusicPlayerProps {
-  /** When this flips true (e.g. the moment the envelope is opened), playback is attempted. */
   armed: boolean;
   src?: string;
 }
 
-/**
- * Floating music toggle. Autoplay is never forced — browsers block it anyway —
- * so playback only starts once `armed` becomes true off the back of a real tap,
- * and errors (missing file, blocked audio) are swallowed quietly.
- */
 export default function MusicPlayer({ armed, src = "/audio/song.mp3" }: MusicPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
   const [unavailable, setUnavailable] = useState(false);
 
   useEffect(() => {
-    if (!armed || !audioRef.current) return;
-    audioRef.current.volume = 0.5;
+    if (!armed || unavailable || !audioRef.current) return;
+    audioRef.current.volume = 0.45;
     audioRef.current
       .play()
       .then(() => setPlaying(true))
-      .catch(() => setUnavailable(true));
-  }, [armed]);
+      .catch(() => {
+        setPlaying(false);
+      });
+  }, [armed, unavailable]);
 
   const toggle = () => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || unavailable) return;
     if (playing) {
       audio.pause();
       setPlaying(false);
@@ -36,24 +32,20 @@ export default function MusicPlayer({ armed, src = "/audio/song.mp3" }: MusicPla
       audio
         .play()
         .then(() => setPlaying(true))
-        .catch(() => setUnavailable(true));
+        .catch(() => setPlaying(false));
     }
   };
 
+  if (unavailable) return null;
+
   return (
-    <div className="fixed top-4 right-4 z-50">
-      <audio
-        ref={audioRef}
-        src={src}
-        loop
-        onError={() => setUnavailable(true)}
-      />
+    <div className="fixed right-3 top-3 z-50 sm:right-4 sm:top-4">
+      <audio ref={audioRef} src={src} loop preload="none" onError={() => setUnavailable(true)} />
       <button
+        type="button"
         onClick={toggle}
         aria-label={playing ? "Pause music" : "Play music"}
-        disabled={unavailable}
-        className="flex h-11 w-11 items-center justify-center rounded-full bg-plum-light/70 backdrop-blur-md border border-gold/40 text-gold shadow-lg transition-transform active:scale-90 disabled:opacity-40"
-        title={unavailable ? "Add your song to public/audio/song.mp3" : undefined}
+        className="flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 bg-plum-light/70 text-gold shadow-lg backdrop-blur-md transition-transform active:scale-90"
       >
         {playing ? <Music size={18} className="animate-pulse" /> : <VolumeX size={18} />}
       </button>

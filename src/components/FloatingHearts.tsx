@@ -4,20 +4,28 @@ import { Heart } from "lucide-react";
 import { useReducedMotion } from "../hooks/useReducedMotion";
 
 interface FloatingHeartsProps {
-  /** Ambient petals/hearts drifting down continuously. */
   ambient?: boolean;
   density?: number;
-  /** If true, tapping anywhere in this layer spawns a heart burst. */
   interactive?: boolean;
   className?: string;
 }
 
+interface Burst {
+  id: number;
+  x: number;
+  y: number;
+}
+
+interface Spark {
+  id: number;
+  x: number;
+  y: number;
+  dx: number;
+  dy: number;
+}
+
 let idCounter = 0;
 
-/**
- * Ambient falling rose petals + floating hearts, and/or a tap layer that
- * spawns little hearts wherever the person taps.
- */
 export default function FloatingHearts({
   ambient = true,
   density = 10,
@@ -25,7 +33,8 @@ export default function FloatingHearts({
   className = "",
 }: FloatingHeartsProps) {
   const reduced = useReducedMotion();
-  const [taps, setTaps] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [bursts, setBursts] = useState<Burst[]>([]);
+  const [sparks, setSparks] = useState<Spark[]>([]);
 
   const ambientItems = useMemo(
     () =>
@@ -42,14 +51,32 @@ export default function FloatingHearts({
 
   const handleTap = useCallback((e: MouseEvent) => {
     const id = idCounter++;
-    setTaps((prev) => [...prev, { id, x: e.clientX, y: e.clientY }]);
+    const x = e.clientX;
+    const y = e.clientY;
+    setBursts((prev) => [...prev, { id, x, y }]);
+
+    const pieces: Spark[] = Array.from({ length: 6 }, (_, i) => {
+      const angle = (Math.PI * 2 * i) / 6 + Math.random() * 0.4;
+      const dist = 28 + Math.random() * 26;
+      return {
+        id: idCounter++,
+        x,
+        y,
+        dx: Math.cos(angle) * dist,
+        dy: Math.sin(angle) * dist - 18,
+      };
+    });
+    setSparks((prev) => [...prev, ...pieces]);
+
     window.setTimeout(() => {
-      setTaps((prev) => prev.filter((t) => t.id !== id));
-    }, 1200);
+      setBursts((prev) => prev.filter((t) => t.id !== id));
+    }, 900);
+    window.setTimeout(() => {
+      const ids = new Set(pieces.map((p) => p.id));
+      setSparks((prev) => prev.filter((s) => !ids.has(s.id)));
+    }, 1100);
   }, []);
 
-  // Listen on the whole document so taps still spawn hearts without this
-  // layer intercepting (and thus blocking) real buttons underneath it.
   useEffect(() => {
     if (!interactive) return;
     document.addEventListener("click", handleTap);
@@ -70,14 +97,11 @@ export default function FloatingHearts({
             }}
           >
             {item.isHeart ? (
-              <Heart
-                size={item.size}
-                className="fill-rose-light text-rose-light drop-shadow"
-              />
+              <Heart size={item.size} className="fill-rose-light text-rose-light drop-shadow animate-heartbeat" />
             ) : (
-              <svg width={item.size} height={item.size} viewBox="0 0 24 24" className="drop-shadow">
+              <svg width={item.size} height={item.size * 1.25} viewBox="0 0 20 26" className="drop-shadow">
                 <path
-                  d="M12 2c3 4-2 6-2 10 0 4 4 6 2 10-3-4 2-6 2-10 0-4-4-6-2-10z"
+                  d="M10 2 C 4 8 2 14 6 20 C 8 24 10 25 10 25 C 10 25 12 24 14 20 C 18 14 16 8 10 2 Z"
                   fill="#E88BA0"
                   opacity="0.85"
                 />
@@ -87,16 +111,28 @@ export default function FloatingHearts({
         ))}
 
       <AnimatePresence>
-        {taps.map((t) => (
+        {bursts.map((t) => (
           <motion.span
             key={t.id}
-            initial={{ opacity: 1, scale: 0.4, y: 0 }}
-            animate={{ opacity: 0, scale: 1.4, y: -70 }}
+            initial={{ opacity: 1, scale: 0.5 }}
+            animate={{ opacity: 0, scale: 1.7 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 1.1, ease: "easeOut" }}
-            style={{ position: "absolute", left: t.x - 10, top: t.y - 10 }}
+            transition={{ duration: 0.85, ease: "easeOut" }}
+            style={{ position: "fixed", left: t.x - 12, top: t.y - 12 }}
           >
-            <Heart size={22} className="fill-rose text-rose" />
+            <Heart size={24} className="fill-rose text-rose" />
+          </motion.span>
+        ))}
+        {sparks.map((s) => (
+          <motion.span
+            key={s.id}
+            initial={{ opacity: 1, x: 0, y: 0, scale: 0.7 }}
+            animate={{ opacity: 0, x: s.dx, y: s.dy, scale: 1.1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.95, ease: "easeOut" }}
+            style={{ position: "fixed", left: s.x - 8, top: s.y - 8 }}
+          >
+            <Heart size={14} className="fill-rose-light text-rose-light" />
           </motion.span>
         ))}
       </AnimatePresence>

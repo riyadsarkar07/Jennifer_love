@@ -12,6 +12,7 @@ html, body, #root {
   margin: 0;
   padding: 0;
   width: 100%;
+  max-width: 100%;
   overflow-x: hidden;
   background-color: #180819;
 }
@@ -19,6 +20,14 @@ html, body, #root {
 body {
   font-family: 'Quicksand', sans-serif;
   -webkit-tap-highlight-color: transparent;
+}
+
+img {
+  max-width: 100%;
+}
+
+button {
+  touch-action: manipulation;
 }
 
 ::-webkit-scrollbar {
